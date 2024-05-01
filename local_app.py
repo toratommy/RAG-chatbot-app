@@ -1,11 +1,11 @@
 import streamlit as st
 import openai
 from llama_index.llms.openai import OpenAI
+from src.utils import fetch_articles, create_dir_if_not_exists
 try:
     from llama_index import VectorStoreIndex, ServiceContext, Document, SimpleDirectoryReader
 except ImportError:
     from llama_index.core import VectorStoreIndex, ServiceContext, Document, SimpleDirectoryReader
-from utils import fetch_articles, create_dir_if_not_exists
 
 st.set_page_config(page_title="RAG Chat with Company Articles", page_icon="📄", layout="centered", initial_sidebar_state="auto", menu_items=None)
 openai.api_key = st.secrets.openai_key
