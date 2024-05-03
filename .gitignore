@@ -8,6 +8,10 @@ __pycache__/
 
 # config files
 config.yml
+secrets.toml
+
+# fetched data
+data/*
 
 # Distribution / packaging
 .Python

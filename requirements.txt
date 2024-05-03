@@ -1,7 +1,10 @@
-streamlit==1.19.0
-transformers==4.21.1
-torch==1.12.1
-requests==2.28.1
+streamlit
+transformers
+sentence-transformers
+torch
+requests
+numpy
+pandas
 llama-index
-nltk
-pypdf
+langchain
+llama-index-llms-huggingface
