@@ -8,3 +8,4 @@ pandas
 llama-index
 langchain
 llama-index-llms-huggingface
+tika
