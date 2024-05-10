@@ -16,11 +16,10 @@ Welcome to the Personal Knowledge Base Agent, a powerful tool designed to stream
 - Pip or conda for managing software packages
 
 ### Libraries
-This project depends on several Python libraries, including Streamlit, LlamaIndex, and requests. You can install these packages using pip:
+This project depends on several Python libraries, which are listed in the `requirements.txt` file. You can install all the necessary packages using pip:
 
 ```bash
-pip install streamlit requests
-# Install any specific packages you need for LlamaIndex as per its documentation
+pip install -r requirements.txt
 ```
 
 ## Clone the Repository
