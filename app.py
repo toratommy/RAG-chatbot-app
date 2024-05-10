@@ -76,7 +76,7 @@ def main():
                 st.success(f"{num_docs} documents successfully indexed. Start a chat with your knowledge base agent below!")
                 st.dataframe(files_df)
                 # Reset chat upon new indexing
-                st.session_state.messages = [{"role": "assistant", "content": f"Hello! I am your personal knowledge base agent. Ask me anything about your knowledge base. I currently have access to {num_docs} indexed files in from following directory: `{file_path}`"}]
+                st.session_state.messages = [{"role": "assistant", "content": f"Hello! I am your personal knowledge base agent. Ask me anything about your knowledge base. I currently have access to {num_docs} indexed files in the following directory: `{file_path}`"}]
 
     # Main chat interface
     st.subheader("Interactive Chat")
