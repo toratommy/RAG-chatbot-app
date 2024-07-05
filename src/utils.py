@@ -6,15 +6,20 @@ from datetime import datetime, timedelta
 from llama_index.core import VectorStoreIndex, SimpleDirectoryReader, ServiceContext
 from llama_index.llms.openai import OpenAI
 import openai
-from tika import parser as tika_parser  # Apache Tika for parsing various document types
+import sqlite3
+
 
 def format_message(content):
     # Escape dollar signs to prevent Markdown formatting issues
     return content.replace("$", "\$")
 
-def make_knowledge_base_selections():
-    knowledge_base_type = st.selectbox('Select knowledge base type',['Local Directory','SharePoint','Google Drive','S3 Bucket','Fetch Public Data'])
-    return knowledge_base_type
+def make_database_selections():
+    database_type = st.selectbox('Select database',['PostgreSQL','Amazon Redshift','Amason RDS','MySQL','Snowflake'])
+    return database_type
+
+def make_document_repository_selections():
+    document_repository_type = st.selectbox('Select document repository type',['Local Directory','SharePoint','Google Drive','S3 Bucket','Fetch Public Documents'])
+    return document_repository_type
 
 def enter_path():
     file_path = st.text_input('Enter file path', placeholder='/Users/YourName/Documents')
@@ -113,3 +118,24 @@ def query_response(index, query):
     query_engine = index.as_query_engine()
     response = query_engine.query(query)
     return response
+
+# Initialize database and create sample data
+
+
+def text_to_sql_query(query_engine, text):
+    try:
+        # Generate SQL query from the input text using llamaindex
+        response = query_engine.query(text)
+        return response.query_str, response
+    except Exception as e:
+        return str(e), None
+
+def execute_sql_query(engine, text, query):
+    try:
+        with engine.connect() as connection:
+            result = connection.execute(text(query))
+            data = result.fetchall()
+            columns = result.keys()
+        return data, columns
+    except Exception as e:
+        return str(e), []
