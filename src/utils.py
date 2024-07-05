@@ -3,11 +3,12 @@ import os
 import pandas as pd
 import streamlit as st
 from datetime import datetime, timedelta
-from llama_index.core import VectorStoreIndex, SimpleDirectoryReader, ServiceContext
+from llama_index.core import VectorStoreIndex, SimpleDirectoryReader, ServiceContext, SQLDatabase
+from llama_index.core.query_engine import NLSQLTableQueryEngine
 from llama_index.llms.openai import OpenAI
 import openai
+from sqlalchemy import create_engine, MetaData, Table, Column, String, Integer, select, insert, text
 import sqlite3
-
 
 def format_message(content):
     # Escape dollar signs to prevent Markdown formatting issues
@@ -119,23 +120,48 @@ def query_response(index, query):
     response = query_engine.query(query)
     return response
 
-# Initialize database and create sample data
+def connect_database():
+    # Initialize SQLAlchemy engine
+    engine = create_engine("sqlite:///:memory:")
+    metadata_obj = MetaData()
 
+    # Define and create city_stats table
+    table_name = "city_stats"
+    city_stats_table = Table(
+        table_name,
+        metadata_obj,
+        Column("city_name", String(16), primary_key=True),
+        Column("population", Integer),
+        Column("country", String(16), nullable=False),
+    )
+    metadata_obj.create_all(engine)
 
-def text_to_sql_query(query_engine, text):
+    # Clear the table before inserting new data
+    with engine.connect() as connection:
+        connection.execute(text(f"DELETE FROM {table_name}"))
+
+    # Add some testing data to our SQL database
+    rows = [
+        {"city_name": "Toronto", "population": 2930000, "country": "Canada"},
+        {"city_name": "Tokyo", "population": 13960000, "country": "Japan"},
+        {"city_name": "Chicago", "population": 2679000, "country": "United States"},
+        {"city_name": "Seoul", "population": 9776000, "country": "South Korea"},
+    ]
+    for row in rows:
+        stmt = insert(city_stats_table).values(**row)
+        with engine.begin() as connection:
+            connection.execute(stmt)
+    sql_database = SQLDatabase(engine, include_tables=["city_stats"])
+    return sql_database, engine
+
+def text_to_sql_query(text, sql_database, llm):
+    # Initialize the NLSQLTableQueryEngine
+    query_engine = NLSQLTableQueryEngine(
+            sql_database=sql_database, tables=["city_stats"], llm=llm
+        )
     try:
         # Generate SQL query from the input text using llamaindex
         response = query_engine.query(text)
-        return response.query_str, response
+        return response
     except Exception as e:
-        return str(e), None
-
-def execute_sql_query(engine, text, query):
-    try:
-        with engine.connect() as connection:
-            result = connection.execute(text(query))
-            data = result.fetchall()
-            columns = result.keys()
-        return data, columns
-    except Exception as e:
-        return str(e), []
+        return str(e)

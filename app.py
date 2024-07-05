@@ -4,12 +4,12 @@ from src.utils import *
 
 # TO DO:
 
-# implement trustworthly scores/source citing
+# implement source citing
 # implement pathway for cloud connections
 # let users select models (add placeholder for privately hosted)
 # let agent render plots
-# llamaParse with gpt4o
 # toggle to give users access to outside info vs restrict to context
+# text to sql
 
 
 def main():
@@ -110,6 +110,17 @@ def main():
         else:
             st.warning("No indexed data available for chat. Please use the left control panel to connect a document repository and click the button above to index your documents.")
     else:
-        st.warning("No database available for chat. Please use the left control panel to connect a database.")
+        # Define SQLDatabase and LLM
+        llm = get_model_and_tokenizer()
+        sql_database, engine = connect_database()
+
+        user_input = st.text_area("Enter your query in natural language:", "Which city has the highest population?")
+    
+        if st.button("Convert to SQL"):
+            response = text_to_sql_query(user_input, sql_database, llm)
+            st.write(response.metadata['sql_query'])
+            st.write(response.response)
+
+        #st.warning("No database available for chat. Please use the left control panel to connect a database.")
 if __name__ == "__main__":
     main()
